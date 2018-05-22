@@ -1,21 +1,32 @@
 package main
 
 import (
+  //"fmt"
+  "net/http"
+  "net/http/httptest"
   "testing"
-  "time"
+  //"io/ioutil"
 )
 
-func TestTime(t *testing.T) {
-  current_time := time.Now()
-  same_time := current_time
-  if current_time != same_time {
-    t.Errorf("It's very strange... It must be the same time: %v and %v",
-      current_time, same_time)
+func TestBodyData(t *testing.T) {
+  req, err := http.NewRequest("GET", "http://localhost:8080", nil)
+  if err != nil {
+    t.Fatal(err)
   }
-}
 
-func TestTwo(t *testing.T) {
-  if 2 != 2 {
-    t.Errorf("It's not funny. Check your computer!")
+  rr := httptest.NewRecorder()
+  handler := http.HandlerFunc(HandleHelloWorld)
+
+  handler.ServeHTTP(rr, req)
+
+  if status := rr.Code; status != http.StatusOK {
+    t.Errorf("handler returned wrong status code: got %v want %v",
+      status, http.StatusOK)
+  }
+
+  expected := "Hello, Go!"
+  if rr.Body.String() != expected {
+    t.Errorf("handler returned unexpected body: got %v want %v",
+      rr.Body.String(), expected)
   }
 }
