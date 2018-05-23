@@ -1,32 +1,26 @@
 package main
 
 import (
-  //"fmt"
-  "net/http"
-  "net/http/httptest"
-  "testing"
-  //"io/ioutil"
+	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
+	"testing"
 )
 
 func TestBodyData(t *testing.T) {
-  req, err := http.NewRequest("GET", "http://localhost:8080", nil)
-  if err != nil {
-    t.Fatal(err)
-  }
+	ts := httptest.NewServer(http.HandlerFunc(HandleHelloWorld))
+	defer ts.Close()
 
-  rr := httptest.NewRecorder()
-  handler := http.HandlerFunc(HandleHelloWorld)
+	res, err := http.Get(ts.URL)
 
-  handler.ServeHTTP(rr, req)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-  if status := rr.Code; status != http.StatusOK {
-    t.Errorf("handler returned wrong status code: got %v want %v",
-      status, http.StatusOK)
-  }
+	got, _ := ioutil.ReadAll(res.Body)
+	expected := "Hello, Go!"
 
-  expected := "Hello, Go!"
-  if rr.Body.String() != expected {
-    t.Errorf("handler returned unexpected body: got %v want %v",
-      rr.Body.String(), expected)
-  }
+	if string(got) != expected {
+		t.Errorf("unexpected body: got %v expected %v", string(got), expected)
+	}
 }
