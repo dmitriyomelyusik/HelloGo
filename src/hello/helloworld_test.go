@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -8,7 +9,10 @@ import (
 )
 
 func TestBodyData(t *testing.T) {
-	ts := httptest.NewServer(http.HandlerFunc(HandleHelloWorld))
+	//ts := httptest.NewServer(http.HandlerFunc(HandleHelloWorld))
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "Hello, Go!")
+	}))
 	defer ts.Close()
 
 	res, err := http.Get(ts.URL)
